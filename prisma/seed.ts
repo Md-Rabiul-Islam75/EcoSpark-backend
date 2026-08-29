@@ -1,8 +1,14 @@
 import { PrismaClient, Role } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
 import { hashPassword } from '../src/utils/password';
 import { createSlug } from '../src/utils/slug';
+import { env } from '../src/config/env';
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({
+  adapter: new PrismaPg({
+    connectionString: env.databaseUrl,
+  }),
+});
 
 const categories = [
   { name: 'Energy', description: 'Energy efficiency and renewable power ideas' },

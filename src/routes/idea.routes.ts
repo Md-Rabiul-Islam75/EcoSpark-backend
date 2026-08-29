@@ -3,6 +3,7 @@ import {
   createIdea,
   deleteIdea,
   getIdeaBySlug,
+  getUserIdeas,
   listIdeas,
   reviewIdea,
   submitIdea,
@@ -16,6 +17,7 @@ import { ideaCreateSchema, ideaUpdateSchema } from '../validators/idea.validatio
 const router = Router();
 
 router.get('/', optionalAuth, listIdeas);
+router.get('/user', authenticate, getUserIdeas);
 router.get('/:slug', optionalAuth, getIdeaBySlug);
 router.post('/', authenticate, validate(ideaCreateSchema), createIdea);
 router.patch('/:id', authenticate, validate(ideaUpdateSchema), updateIdea);

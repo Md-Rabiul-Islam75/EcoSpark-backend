@@ -4,6 +4,7 @@ import { prisma } from '../config/prisma';
 import { AppError } from '../utils/AppError';
 import { asyncHandler } from '../utils/asyncHandler';
 import { sendResponse } from '../utils/response';
+import { buildPagination } from '../utils/paginate';
 
 export const dashboardStats = asyncHandler(async (_req: Request, res: Response) => {
   const [totalUsers, totalIdeas, pendingIdeas, approvedIdeas, rejectedIdeas, revenue] = await Promise.all([
@@ -52,4 +53,83 @@ export const updateUser = asyncHandler(async (req: Request, res: Response) => {
   });
 
   sendResponse(res, 200, user, 'User updated');
+});
+
+export const listIdeas = asyncHandler(async (req: Request, res: Response) => {
+  const { page, limit, skip } = buildPagination(req.query.page as string, req.query.limit as string);
+  const status = req.query.status as string | undefined;
+
+  const where: Record<string, unknown> = {};
+  if (status) {
+    where.status = status;
+  }
+
+  const [ideas, total] = await Promise.all([
+    prisma.idea.findMany({
+      where,
+      skip,
+      take: limit,
+      orderBy: { createdAt: 'desc' },
+      include: {
+        author: { select: { id: true, name: true, email: true, profileImage: true } },
+        category: { select: { id: true, name: true, slug: true } },
+        _count: { select: { votes: true, comments: true, payments: true } },
+      },
+    }),
+    prisma.idea.count({ where }),
+  ]);
+
+  sendResponse(res, 200, {
+    items: ideas,
+    meta: { page, limit, total, pages: Math.ceil(total / limit) },
+  });
+});
+
+export const approveIdea = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  const idea = await prisma.idea.findUnique({ where: { id } });
+  if (!idea) {
+    throw new AppError(404, 'Idea not found');
+  }
+
+  const updated = await prisma.idea.update({
+    where: { id },
+    data: { status: 'APPROVED', isPublished: true, feedback: null },
+  });
+
+  sendResponse(res, 200, updated, 'Idea approved');
+});
+
+export const rejectIdea = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { feedback } = req.body as { feedback?: string };
+
+  const idea = await prisma.idea.findUnique({ where: { id } });
+  if (!idea) {
+    throw new AppError(404, 'Idea not found');
+  }
+
+  const updated = await prisma.idea.update({
+    where: { id },
+    data: { status: 'REJECTED', isPublished: false, feedback: feedback || 'Rejected by admin' },
+  });
+
+  sendResponse(res, 200, updated, 'Idea rejected');
+});
+
+export const featureIdea = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  const idea = await prisma.idea.findUnique({ where: { id } });
+  if (!idea) {
+    throw new AppError(404, 'Idea not found');
+  }
+
+  const updated = await prisma.idea.update({
+    where: { id },
+    data: { isFeatured: true },
+  });
+
+  sendResponse(res, 200, updated, 'Idea featured');
 });

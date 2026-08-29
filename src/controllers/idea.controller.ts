@@ -60,11 +60,13 @@ const formatIdea = async (idea: any, userId?: string) => {
 export const listIdeas = asyncHandler(async (req: Request, res: Response) => {
   const { page, limit, skip } = buildPagination(req.query.page as string, req.query.limit as string);
   const search = (req.query.search as string | undefined)?.trim();
-  const category = req.query.category as string | undefined;
-  const payment = req.query.payment as string | undefined;
+  const category = (req.query.categoryId as string | undefined) ?? (req.query.category as string | undefined);
+  const payment =
+    (req.query.isPaid as string | undefined) ??
+    (req.query.payment as string | undefined);
   const author = req.query.author as string | undefined;
   const minVotes = Number(req.query.minVotes || 0);
-  const sort = (req.query.sort as string) || 'recent';
+  const sort = (req.query.sort as string) || (req.query.sortBy as string) || 'recent';
 
   const where: Prisma.IdeaWhereInput = { status: IdeaStatus.APPROVED, isPublished: true };
 
@@ -80,11 +82,11 @@ export const listIdeas = asyncHandler(async (req: Request, res: Response) => {
     where.category = { slug: category };
   }
 
-  if (payment === 'paid') {
+  if (payment === 'paid' || payment === 'true') {
     where.isPaid = true;
   }
 
-  if (payment === 'free') {
+  if (payment === 'free' || payment === 'false') {
     where.isPaid = false;
   }
 
@@ -110,6 +112,33 @@ export const listIdeas = asyncHandler(async (req: Request, res: Response) => {
 
   sendResponse(res, 200, {
     items: filtered,
+    meta: { page, limit, total, pages: Math.ceil(total / limit) },
+  });
+});
+
+export const getUserIdeas = asyncHandler(async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+  if (!userId) {
+    throw new AppError(401, 'Unauthorized access');
+  }
+
+  const { page, limit, skip } = buildPagination(req.query.page as string, req.query.limit as string);
+
+  const [ideas, total] = await Promise.all([
+    prisma.idea.findMany({
+      where: { authorId: userId },
+      skip,
+      take: limit,
+      orderBy: { createdAt: 'desc' },
+      select: ideaSelect,
+    }),
+    prisma.idea.count({ where: { authorId: userId } }),
+  ]);
+
+  const formatted = await Promise.all(ideas.map((idea) => formatIdea(idea, userId)));
+
+  sendResponse(res, 200, {
+    items: formatted,
     meta: { page, limit, total, pages: Math.ceil(total / limit) },
   });
 });
