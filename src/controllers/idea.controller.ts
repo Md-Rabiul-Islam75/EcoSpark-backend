@@ -95,9 +95,9 @@ export const listIdeas = asyncHandler(async (req: Request, res: Response) => {
   }
 
   const orderBy =
-    sort === 'top'
+    sort === 'top' || sort === 'topVoted'
       ? { votes: { _count: 'desc' as const } }
-      : sort === 'comments'
+      : sort === 'comments' || sort === 'mostCommented'
         ? { comments: { _count: 'desc' as const } }
         : { createdAt: 'desc' as const };
 

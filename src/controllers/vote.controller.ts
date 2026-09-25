@@ -20,7 +20,8 @@ export const castVote = asyncHandler(async (req: Request, res: Response) => {
     if (existing) {
       await prisma.vote.delete({ where: { userId_ideaId: { userId, ideaId } } });
     }
-    return sendResponse(res, 200, null, 'Vote removed');
+    const totalVotes = await prisma.vote.count({ where: { ideaId } });
+    return sendResponse(res, 200, { totalVotes }, 'Vote removed');
   }
 
   const vote = existing
@@ -32,5 +33,6 @@ export const castVote = asyncHandler(async (req: Request, res: Response) => {
         data: { userId, ideaId, type },
       });
 
-  sendResponse(res, 200, vote, 'Vote recorded');
+  const totalVotes = await prisma.vote.count({ where: { ideaId } });
+  sendResponse(res, 200, { vote, totalVotes }, 'Vote recorded');
 });
