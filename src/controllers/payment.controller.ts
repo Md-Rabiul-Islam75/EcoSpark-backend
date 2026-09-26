@@ -31,8 +31,8 @@ export const createCheckoutSession = asyncHandler(async (req: Request, res: Resp
       },
     ],
     metadata: { ideaId, userId },
-    success_url: `${env.appUrl}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${env.appUrl}/payment/cancel`,
+    success_url: `${env.frontendUrl}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${env.frontendUrl}/idea/${ideaId}`,
   });
 
   await prisma.payment.create({
@@ -86,6 +86,8 @@ export const stripeWebhook = asyncHandler(async (req: Request, res: Response) =>
 export const myPurchasedIdeas = asyncHandler(async (req: Request, res: Response) => {
   const userId = req.user?.id;
   if (!userId) throw new AppError(401, 'Unauthorized access');
+
+  res.set('Cache-Control', 'no-store');
 
   const payments = await prisma.payment.findMany({
     where: { userId, status: 'SUCCEEDED' },

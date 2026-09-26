@@ -7,17 +7,27 @@ import {
   listIdeas,
   reviewIdea,
   submitIdea,
+  uploadIdeaImage,
   updateIdea,
 } from '../controllers/idea.controller';
 import { authenticate, authorizeRoles } from '../middlewares/auth';
 import { optionalAuth } from '../middlewares/optionalAuth';
 import { validate } from '../middlewares/validate';
 import { ideaCreateSchema, ideaUpdateSchema } from '../validators/idea.validation';
+import multer from 'multer';
 
 const router = Router();
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (_req, file, callback) => {
+    callback(null, file.mimetype.startsWith('image/'));
+  },
+});
 
 router.get('/', optionalAuth, listIdeas);
 router.get('/user', authenticate, getUserIdeas);
+router.post('/upload', authenticate, upload.single('image'), uploadIdeaImage);
 router.get('/:slug', optionalAuth, getIdeaBySlug);
 router.post('/', authenticate, validate(ideaCreateSchema), createIdea);
 router.patch('/:id', authenticate, validate(ideaUpdateSchema), updateIdea);

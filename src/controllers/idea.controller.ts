@@ -6,6 +6,7 @@ import { asyncHandler } from '../utils/asyncHandler';
 import { createSlug } from '../utils/slug';
 import { buildPagination } from '../utils/paginate';
 import { sendResponse } from '../utils/response';
+import { cloudinary } from '../config/cloudinary';
 
 const ideaSelect = {
   id: true,
@@ -191,6 +192,28 @@ export const createIdea = asyncHandler(async (req: Request, res: Response) => {
   });
 
   sendResponse(res, 201, idea, 'Idea created');
+});
+
+export const uploadIdeaImage = asyncHandler(async (req: Request, res: Response) => {
+  if (!req.file) {
+    throw new AppError(400, 'Image file is required');
+  }
+
+  const image = await new Promise<{ secure_url: string }>((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      { folder: 'ecospark/ideas', resource_type: 'image' },
+      (error, result) => {
+        if (error || !result?.secure_url) {
+          reject(new AppError(500, 'Image upload failed'));
+          return;
+        }
+        resolve({ secure_url: result.secure_url });
+      },
+    );
+    stream.end(req.file?.buffer);
+  });
+
+  sendResponse(res, 201, { url: image.secure_url }, 'Image uploaded');
 });
 
 export const updateIdea = asyncHandler(async (req: Request, res: Response) => {
