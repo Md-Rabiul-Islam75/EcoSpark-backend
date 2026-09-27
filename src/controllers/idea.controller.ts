@@ -216,6 +216,26 @@ export const uploadIdeaImage = asyncHandler(async (req: Request, res: Response) 
   sendResponse(res, 201, { url: image.secure_url }, 'Image uploaded');
 });
 
+export const uploadIdeaImageFromUrl = asyncHandler(async (req: Request, res: Response) => {
+  const imageUrl = typeof req.body.imageUrl === 'string' ? req.body.imageUrl.trim() : '';
+  if (!imageUrl) {
+    throw new AppError(400, 'Image URL is required');
+  }
+
+  try {
+    new URL(imageUrl);
+  } catch {
+    throw new AppError(400, 'A valid image URL is required');
+  }
+
+  const image = await cloudinary.uploader.upload(imageUrl, {
+    folder: 'ecospark/ideas',
+    resource_type: 'image',
+  });
+
+  sendResponse(res, 201, { url: image.secure_url }, 'Image uploaded');
+});
+
 export const updateIdea = asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
   const userId = req.user?.id;

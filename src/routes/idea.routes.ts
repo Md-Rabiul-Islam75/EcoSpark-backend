@@ -8,6 +8,7 @@ import {
   reviewIdea,
   submitIdea,
   uploadIdeaImage,
+  uploadIdeaImageFromUrl,
   updateIdea,
 } from '../controllers/idea.controller';
 import { authenticate, authorizeRoles } from '../middlewares/auth';
@@ -28,6 +29,7 @@ const upload = multer({
 router.get('/', optionalAuth, listIdeas);
 router.get('/user', authenticate, getUserIdeas);
 router.post('/upload', authenticate, upload.single('image'), uploadIdeaImage);
+router.post('/upload-url', authenticate, uploadIdeaImageFromUrl);
 router.get('/:slug', optionalAuth, getIdeaBySlug);
 router.post('/', authenticate, validate(ideaCreateSchema), createIdea);
 router.patch('/:id', authenticate, validate(ideaUpdateSchema), updateIdea);
