@@ -8,6 +8,9 @@ import { buildPagination } from '../utils/paginate';
 import { sendResponse } from '../utils/response';
 import { cloudinary } from '../config/cloudinary';
 
+const getRouteParam = (value: string | string[] | undefined) =>
+  Array.isArray(value) ? value[0] ?? '' : value ?? '';
+
 const ideaSelect = {
   id: true,
   title: true,
@@ -145,8 +148,8 @@ export const getUserIdeas = asyncHandler(async (req: Request, res: Response) => 
 });
 
 export const getIdeaBySlug = asyncHandler(async (req: Request, res: Response) => {
-  const { slug } = req.params;
-  const idea = await prisma.idea.findUnique({ where: { slug }, select: ideaSelect as any });
+  const slug = getRouteParam(req.params.slug);
+  const idea = await prisma.idea.findUnique({ where: { slug }, select: ideaSelect });
 
   if (!idea) {
     throw new AppError(404, 'Idea not found');
@@ -154,7 +157,7 @@ export const getIdeaBySlug = asyncHandler(async (req: Request, res: Response) =>
 
   const formatted = await formatIdea(idea, req.user?.id);
 
-  if (!formatted.isUnlocked && req.user?.id !== idea.author.id) {
+  if (!formatted.isUnlocked && req.user?.id !== idea.authorId) {
     formatted.description = 'This premium idea is locked until purchase.';
     formatted.problemStatement = 'Premium content locked';
     formatted.proposedSolution = 'Premium content locked';
@@ -237,7 +240,7 @@ export const uploadIdeaImageFromUrl = asyncHandler(async (req: Request, res: Res
 });
 
 export const updateIdea = asyncHandler(async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const id = getRouteParam(req.params.id);
   const userId = req.user?.id;
   const role = req.user?.role;
 
@@ -272,7 +275,7 @@ export const updateIdea = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const deleteIdea = asyncHandler(async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const id = getRouteParam(req.params.id);
   const userId = req.user?.id;
   const role = req.user?.role;
 
@@ -294,7 +297,7 @@ export const deleteIdea = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const submitIdea = asyncHandler(async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const id = getRouteParam(req.params.id);
   const userId = req.user?.id;
   const idea = await prisma.idea.findUnique({ where: { id } });
 
@@ -315,7 +318,7 @@ export const submitIdea = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const reviewIdea = asyncHandler(async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const id = getRouteParam(req.params.id);
   const { status, feedback } = req.body as { status: 'APPROVED' | 'REJECTED'; feedback?: string };
 
   const idea = await prisma.idea.findUnique({ where: { id } });
