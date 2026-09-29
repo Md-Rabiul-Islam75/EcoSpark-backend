@@ -27,7 +27,7 @@ export const createApp = () => {
     express.json({
       limit: '5mb',
       verify: (req, _res, buf) => {
-        req.rawBody = Buffer.from(buf);
+        (req as typeof req & { rawBody?: Buffer }).rawBody = Buffer.from(buf);
       },
     }),
   );
