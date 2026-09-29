@@ -37,6 +37,10 @@ export const createApp = () => {
     res.json({ success: true, message: 'EcoSpark Hub API is running' });
   });
 
+  app.get('/api/health', (_req, res) => {
+    res.json({ success: true, message: 'EcoSpark Hub API is running' });
+  });
+
   app.use('/api/v1', routes);
   app.use(notFound);
   app.use(errorHandler);
