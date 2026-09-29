@@ -27,11 +27,12 @@ export const createCategory = asyncHandler(async (req: Request, res: Response) =
 
 export const updateCategory = asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
+  const categoryId = Array.isArray(id) ? id[0] : id;
   const { name, description } = req.body;
   const slug = name ? createSlug(name) : undefined;
 
   const category = await prisma.category.update({
-    where: { id },
+    where: { id: categoryId },
     data: { ...(name ? { name, slug } : {}), ...(description !== undefined ? { description } : {}) },
   });
 
@@ -40,12 +41,13 @@ export const updateCategory = asyncHandler(async (req: Request, res: Response) =
 
 export const deleteCategory = asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const category = await prisma.category.findUnique({ where: { id } });
+  const categoryId = Array.isArray(id) ? id[0] : id;
+  const category = await prisma.category.findUnique({ where: { id: categoryId } });
 
   if (!category) {
     throw new AppError(404, 'Category not found');
   }
 
-  await prisma.category.delete({ where: { id } });
+  await prisma.category.delete({ where: { id: categoryId } });
   sendResponse(res, 200, null, 'Category deleted');
 });
