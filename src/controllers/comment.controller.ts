@@ -5,8 +5,11 @@ import { AppError } from '../utils/AppError';
 import { asyncHandler } from '../utils/asyncHandler';
 import { sendResponse } from '../utils/response';
 
+const getRouteParam = (value: string | string[] | undefined) =>
+  Array.isArray(value) ? value[0] ?? '' : value ?? '';
+
 export const listComments = asyncHandler(async (req: Request, res: Response) => {
-  const { ideaId } = req.params;
+  const ideaId = getRouteParam(req.params.ideaId);
   const comments = await prisma.comment.findMany({
     where: { ideaId, parentId: null, status: CommentStatus.ACTIVE },
     orderBy: { createdAt: 'asc' },
@@ -27,7 +30,7 @@ export const createComment = asyncHandler(async (req: Request, res: Response) =>
   const userId = req.user?.id;
   if (!userId) throw new AppError(401, 'Unauthorized access');
 
-  const { ideaId } = req.params;
+  const ideaId = getRouteParam(req.params.ideaId);
   const { content, parentId } = req.body;
 
   const comment = await prisma.comment.create({
@@ -45,7 +48,7 @@ export const createComment = asyncHandler(async (req: Request, res: Response) =>
 export const updateComment = asyncHandler(async (req: Request, res: Response) => {
   const userId = req.user?.id;
   const role = req.user?.role;
-  const { id } = req.params;
+  const id = getRouteParam(req.params.id);
   const comment = await prisma.comment.findUnique({ where: { id } });
 
   if (!comment) throw new AppError(404, 'Comment not found');
@@ -64,7 +67,7 @@ export const updateComment = asyncHandler(async (req: Request, res: Response) =>
 export const deleteComment = asyncHandler(async (req: Request, res: Response) => {
   const userId = req.user?.id;
   const role = req.user?.role;
-  const { id } = req.params;
+  const id = getRouteParam(req.params.id);
   const comment = await prisma.comment.findUnique({ where: { id } });
 
   if (!comment) throw new AppError(404, 'Comment not found');

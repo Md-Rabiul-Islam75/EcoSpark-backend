@@ -6,6 +6,9 @@ import { asyncHandler } from '../utils/asyncHandler';
 import { sendResponse } from '../utils/response';
 import { buildPagination } from '../utils/paginate';
 
+const getRouteParam = (value: string | string[] | undefined) =>
+  Array.isArray(value) ? value[0] ?? '' : value ?? '';
+
 export const dashboardStats = asyncHandler(async (_req: Request, res: Response) => {
   const [totalUsers, totalIdeas, pendingIdeas, approvedIdeas, rejectedIdeas, revenue] = await Promise.all([
     prisma.user.count(),
@@ -44,7 +47,7 @@ export const listUsers = asyncHandler(async (_req: Request, res: Response) => {
 });
 
 export const updateUser = asyncHandler(async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const id = getRouteParam(req.params.id);
   const { role, isActive } = req.body as { role?: Role; isActive?: boolean };
 
   const user = await prisma.user.update({
@@ -86,7 +89,7 @@ export const listIdeas = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const approveIdea = asyncHandler(async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const id = getRouteParam(req.params.id);
 
   const idea = await prisma.idea.findUnique({ where: { id } });
   if (!idea) {
@@ -102,7 +105,7 @@ export const approveIdea = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const rejectIdea = asyncHandler(async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const id = getRouteParam(req.params.id);
   const { feedback } = req.body as { feedback?: string };
 
   const idea = await prisma.idea.findUnique({ where: { id } });
@@ -119,7 +122,7 @@ export const rejectIdea = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const featureIdea = asyncHandler(async (req: Request, res: Response) => {
-  const { id } = req.params;
+  const id = getRouteParam(req.params.id);
 
   const idea = await prisma.idea.findUnique({ where: { id } });
   if (!idea) {

@@ -104,7 +104,7 @@ export class PaymentService {
   }
 
   private static async handleRefund(charge: any) {
-    const payment = await prisma.payment.findUnique({
+    const payment = await prisma.payment.findFirst({
       where: { stripePaymentId: charge.payment_intent },
     });
 

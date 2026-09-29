@@ -108,13 +108,13 @@ export class AuthService {
     const accessToken = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
       process.env.JWT_ACCESS_SECRET!,
-      { expiresIn: process.env.JWT_ACCESS_EXPIRES_IN || '15m' }
+      { expiresIn: (process.env.JWT_ACCESS_EXPIRES_IN || '15m') as jwt.SignOptions['expiresIn'] }
     );
 
     const refreshToken = jwt.sign(
       { id: user.id, email: user.email },
       process.env.JWT_REFRESH_SECRET!,
-      { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d' }
+      { expiresIn: (process.env.JWT_REFRESH_EXPIRES_IN || '7d') as jwt.SignOptions['expiresIn'] }
     );
 
     return { accessToken, refreshToken };

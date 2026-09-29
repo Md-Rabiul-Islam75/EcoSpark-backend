@@ -7,10 +7,14 @@ export type TokenPayload = {
 };
 
 export const signAccessToken = (payload: TokenPayload) =>
-  jwt.sign(payload, env.jwtAccessSecret, { expiresIn: env.jwtAccessExpiresIn });
+  jwt.sign(payload, env.jwtAccessSecret, {
+    expiresIn: env.jwtAccessExpiresIn as jwt.SignOptions['expiresIn'],
+  });
 
 export const signRefreshToken = (payload: TokenPayload) =>
-  jwt.sign(payload, env.jwtRefreshSecret, { expiresIn: env.jwtRefreshExpiresIn });
+  jwt.sign(payload, env.jwtRefreshSecret, {
+    expiresIn: env.jwtRefreshExpiresIn as jwt.SignOptions['expiresIn'],
+  });
 
 export const verifyAccessToken = (token: string) =>
   jwt.verify(token, env.jwtAccessSecret) as TokenPayload;

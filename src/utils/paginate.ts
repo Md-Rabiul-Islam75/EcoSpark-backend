@@ -9,3 +9,8 @@ export const buildPagination = (page: PaginationValue = 1, limit: PaginationValu
   const skip = (safePage - 1) * safeLimit;
   return { page: safePage, limit: safeLimit, skip };
 };
+
+export const paginate = <T>(items: T[], total: number, page: number, limit: number) => ({
+  items,
+  meta: { page, limit, total, pages: Math.ceil(total / limit) },
+});
