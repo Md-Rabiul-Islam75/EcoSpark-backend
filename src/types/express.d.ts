@@ -13,4 +13,10 @@ declare global {
   }
 }
 
+declare module 'http' {
+  interface IncomingMessage {
+    rawBody?: Buffer;
+  }
+}
+
 export {};
