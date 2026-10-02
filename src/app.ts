@@ -33,6 +33,10 @@ export const createApp = () => {
   );
   app.use(express.urlencoded({ extended: true }));
 
+  app.get('/', (_req, res) => {
+    res.json({ success: true, message: 'EcoSpark Hub API is running' });
+  });
+
   app.get('/health', (_req, res) => {
     res.json({ success: true, message: 'EcoSpark Hub API is running' });
   });
