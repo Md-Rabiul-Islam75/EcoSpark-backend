@@ -46,6 +46,7 @@ export const createApp = () => {
   });
 
   app.use('/api/v1', routes);
+  app.use('/api', routes);
   app.use(notFound);
   app.use(errorHandler);
 
