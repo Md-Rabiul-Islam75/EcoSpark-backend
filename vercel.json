@@ -12,6 +12,14 @@
 			"destination": "/api/health"
 		},
 		{
+			"source": "/api/v1/ideas/:ideaId/comments",
+			"destination": "/api/ideas/:ideaId/comments"
+		},
+		{
+			"source": "/api/v1/ideas/:slug",
+			"destination": "/api/ideas/:slug"
+		},
+		{
 			"source": "/api/v1/:path*",
 			"destination": "/api/:path*"
 		}
