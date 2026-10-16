@@ -11,11 +11,22 @@ import { errorHandler, notFound } from './middlewares/errorHandler';
 
 export const createApp = () => {
   const app = express();
+  const allowedOrigins = new Set([
+    env.corsOrigin,
+    'https://eco-spark-frontend-blue.vercel.app',
+  ]);
 
   app.use(helmet());
   app.use(
     cors({
-      origin: env.corsOrigin,
+      origin: (origin, callback) => {
+        if (!origin || allowedOrigins.has(origin)) {
+          callback(null, true);
+          return;
+        }
+
+        callback(new Error('Origin is not allowed'));
+      },
       credentials: true,
     }),
   );
