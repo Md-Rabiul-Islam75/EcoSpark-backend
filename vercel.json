@@ -12,12 +12,8 @@
 			"destination": "/api/health"
 		},
 		{
-			"source": "/api/v1/ideas/:slug",
-			"destination": "/api/ideas/:slug"
-		},
-		{
-			"source": "/api/v1/:path*",
-			"destination": "/api/:path*"
+			"source": "/api/v1/(.*)",
+			"destination": "/api/$1"
 		}
 	]
 }
