@@ -44,6 +44,10 @@
 			"destination": "/api/payment-purchased"
 		},
 		{
+			"source": "/api/v1/admin/users",
+			"destination": "/api/admin-users"
+		},
+		{
 			"source": "/api/v1/:path*",
 			"destination": "/api/:path*"
 		}
