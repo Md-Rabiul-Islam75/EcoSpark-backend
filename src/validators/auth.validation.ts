@@ -13,5 +13,6 @@ export const loginSchema = z.object({
   body: z.object({
     email: z.string().email(),
     password: z.string().min(8),
+    redirectTo: z.string().regex(/^\/(?!\/)/).optional(),
   }),
 });

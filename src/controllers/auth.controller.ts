@@ -50,7 +50,7 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const login = asyncHandler(async (req: Request, res: Response) => {
-  const { email, password } = req.body;
+  const { email, password, redirectTo } = req.body;
   const user = await prisma.user.findUnique({ where: { email } });
 
   if (!user || !user.isActive) {
@@ -67,6 +67,7 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
   sendResponse(res, 200, {
     user: sanitizeUser(user),
     ...tokens,
+    ...(redirectTo ? { redirectTo } : {}),
   }, 'Login successful');
 });
 
