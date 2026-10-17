@@ -6,6 +6,8 @@ import rateLimit from 'express-rate-limit';
 import hpp from 'hpp';
 import cookieParser from 'cookie-parser';
 import routes from './routes';
+import { listUsers } from './controllers/admin.controller';
+import { authenticate, authorizeRoles } from './middlewares/auth';
 import { env } from './config/env';
 import { errorHandler, notFound } from './middlewares/errorHandler';
 
@@ -55,6 +57,8 @@ export const createApp = () => {
   app.get('/api/health', (_req, res) => {
     res.json({ success: true, message: 'EcoSpark Hub API is running' });
   });
+
+  app.get('/api/admin-users', authenticate, authorizeRoles('ADMIN'), listUsers);
 
   app.use('/api/v1', routes);
   app.use('/api', routes);
