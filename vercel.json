@@ -24,6 +24,10 @@
 			"destination": "/api/idea-detail?slug=:slug"
 		},
 		{
+			"source": "/api/v1/payments/checkout",
+			"destination": "/api/payment-checkout"
+		},
+		{
 			"source": "/api/v1/:path*",
 			"destination": "/api/:path*"
 		}
