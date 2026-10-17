@@ -1,6 +1,7 @@
 import { prisma } from '../src/config/prisma';
 import { env } from '../src/config/env';
 import { verifyAccessToken } from '../src/utils/jwt';
+import { mailer } from '../src/config/mailer';
 
 const getUser = async (authorization: string | undefined) => {
   const token = authorization?.startsWith('Bearer ') ? authorization.slice(7) : '';
@@ -47,6 +48,26 @@ export default async (req: any, res: any) => {
         update: {},
         create: { email, userId },
       });
+
+      try {
+        await Promise.all([
+          mailer.sendMail({
+            from: env.smtpUser,
+            to: email,
+            subject: 'Welcome to EcoSpark Hub',
+            text: 'Thanks for subscribing to the EcoSpark Hub newsletter.',
+          }),
+          mailer.sendMail({
+            from: env.smtpUser,
+            to: env.adminEmail,
+            subject: 'New EcoSpark newsletter subscriber',
+            text: `${email} subscribed to the EcoSpark Hub newsletter.`,
+          }),
+        ]);
+      } catch (error) {
+        console.error('Newsletter email delivery failed:', error);
+      }
+
       return res.status(201).json({
         success: true,
         message: 'Newsletter subscription saved',
