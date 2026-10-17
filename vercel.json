@@ -10,6 +10,18 @@
 		{
 			"source": "/health",
 			"destination": "/api/health"
+		},
+		{
+			"source": "/api/v1/ideas/:ideaId/comments",
+			"destination": "/api/idea-comments?ideaId=:ideaId"
+		},
+		{
+			"source": "/api/v1/ideas/:slug",
+			"destination": "/api/idea-detail?slug=:slug"
+		},
+		{
+			"source": "/api/v1/:path*",
+			"destination": "/api/:path*"
 		}
 	]
 }
