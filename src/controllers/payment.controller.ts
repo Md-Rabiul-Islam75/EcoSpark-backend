@@ -32,7 +32,7 @@ export const createCheckoutSession = asyncHandler(async (req: Request, res: Resp
     ],
     metadata: { ideaId, userId },
     success_url: `${env.frontendUrl}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${env.frontendUrl}/idea/${ideaId}`,
+    cancel_url: `${env.frontendUrl}/idea/${idea.slug}`,
   });
 
   await prisma.payment.create({
