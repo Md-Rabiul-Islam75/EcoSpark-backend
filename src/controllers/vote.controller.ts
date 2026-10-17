@@ -13,13 +13,20 @@ export const castVote = asyncHandler(async (req: Request, res: Response) => {
   if (!userId) throw new AppError(401, 'Unauthorized access');
 
   const ideaId = getRouteParam(req.params.ideaId);
-  const { type } = req.body as { type: VoteType | 'REMOVE' };
+  const rawType = req.body.type ?? req.body.voteType;
+  const type = typeof rawType === 'string' ? rawType.toUpperCase() : rawType;
+
+  if (type !== VoteType.UP && type !== VoteType.DOWN && type !== 'REMOVE' && type !== 'UPVOTE' && type !== 'DOWNVOTE') {
+    throw new AppError(400, 'Vote type must be UP, DOWN, or REMOVE');
+  }
+
+  const normalizedType = type === 'UPVOTE' ? VoteType.UP : type === 'DOWNVOTE' ? VoteType.DOWN : type;
 
   const existing = await prisma.vote.findUnique({
     where: { userId_ideaId: { userId, ideaId } },
   });
 
-  if (type === 'REMOVE') {
+  if (normalizedType === 'REMOVE') {
     if (existing) {
       await prisma.vote.delete({ where: { userId_ideaId: { userId, ideaId } } });
     }
@@ -31,10 +38,10 @@ export const castVote = asyncHandler(async (req: Request, res: Response) => {
   const vote = existing
     ? await prisma.vote.update({
         where: { userId_ideaId: { userId, ideaId } },
-        data: { type },
+        data: { type: normalizedType },
       })
     : await prisma.vote.create({
-        data: { userId, ideaId, type },
+        data: { userId, ideaId, type: normalizedType },
       });
 
   const totalVotes = await prisma.vote.count({ where: { ideaId } });

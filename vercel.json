@@ -16,6 +16,10 @@
 			"destination": "/api/idea-comments?ideaId=:ideaId"
 		},
 		{
+			"source": "/api/v1/ideas/:ideaId/votes",
+			"destination": "/api/idea-votes?ideaId=:ideaId"
+		},
+		{
 			"source": "/api/v1/ideas/:slug",
 			"destination": "/api/idea-detail?slug=:slug"
 		},
