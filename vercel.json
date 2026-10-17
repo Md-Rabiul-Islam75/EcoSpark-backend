@@ -32,10 +32,6 @@
 			"destination": "/api/user-profile"
 		},
 		{
-			"source": "/api/v1/users/stats",
-			"destination": "/api/user-stats"
-		},
-		{
 			"source": "/api/v1/ideas/user",
 			"destination": "/api/user-ideas"
 		},
