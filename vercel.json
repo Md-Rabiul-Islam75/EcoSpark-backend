@@ -28,10 +28,6 @@
 			"destination": "/api/payment-checkout"
 		},
 		{
-			"source": "/api/v1/users/profile",
-			"destination": "/api/user-profile"
-		},
-		{
 			"source": "/api/v1/ideas/user",
 			"destination": "/api/user-ideas"
 		},
